@@ -1,27 +1,32 @@
 require("./js/config.js");
 
-var app = require('express')();
+var express = require('express');
+var app = express();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
+// default
 app.get('/', function(req, res){
   res.sendfile('html/index.html');
 });
 
-// htmlを返却
-app.get('/html', function(req, res){
-  var f = (req.query.f) ? req.query.f : "index";
-  var file = 'html/' + f + ".html";
+// javascriptを返却
+var js = express.Router();
+js.get('/:f', function(req, res){
+  var file = 'js/' + req.params.f;
   res.sendfile(file);
 });
 
-// javascriptを返却
-app.get('/js', function(req, res){
-  if(req.query.f) {
-    var file = 'js/' + req.query.f + ".js";
-    res.sendfile(file);
-  }
+// htmlを返却
+var html = express.Router();
+html.get('/:f', function(req, res){
+  var file = 'html/' + req.params.f + ".html";
+  res.sendfile(file);
 });
+
+// ルータをセット
+app.use(html);
+app.use("/js", js);
 
 // socket event
 io.on('connection', function(socket){
