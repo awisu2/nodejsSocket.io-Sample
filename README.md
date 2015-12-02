@@ -9,5 +9,5 @@ $ npm install
 $ node app
 ```
 
-http://localhost:3000/socket
+http://localhost:3000/html?f=socket
 でアクセスできます
