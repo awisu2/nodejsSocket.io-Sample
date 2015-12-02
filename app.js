@@ -1,3 +1,5 @@
+require("./config.js");
+
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
@@ -10,14 +12,13 @@ app.get('/socket', function(req, res){
   res.sendfile('socket.html');
 });
 
+// javascriptを返却
+app.get('/js', function(req, res){
+  var file = req.query.f + ".js";
+  res.sendfile(file);
+});
 
 // socket event
-var SOCKETEVENT = {
-  MESSAGE    : "message",
-  MESSAGEALL : "messageall",
-  TOCLIENT   : "message_toclient",
-}
-
 io.on('connection', function(socket){
   var id = socket.id;
   var idstr = "[" + id + "] ";
