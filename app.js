@@ -19,19 +19,21 @@ var SOCKETEVENT = {
 }
 
 io.on('connection', function(socket){
-  console.log('connection');
+  var id = socket.id;
+  var idstr = "[" + id + "] ";
+  console.log('connection : id = ' + id);
 
   // イベントの登録
   socket.on('disconnect', function(){
-    console.log('disconnect');
+    console.log(idstr + 'disconnect');
   });
   socket.on(SOCKETEVENT.MESSAGE, function(msg){
-    console.log('message : ' + msg);
+    console.log(idstr + 'message : ' + msg);
     // 返却
     this.emit(SOCKETEVENT.TOCLIENT, msg);
   });
   socket.on(SOCKETEVENT.MESSAGEALL, function(msg){
-    console.log('messageall : ' + msg);
+    console.log(idstr + 'messageall : ' + msg);
     // 返却
     io.emit(SOCKETEVENT.TOCLIENT, msg);
   });
