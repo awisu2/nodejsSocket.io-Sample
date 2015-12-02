@@ -1,21 +1,26 @@
-require("./config.js");
+require("./js/config.js");
 
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
 app.get('/', function(req, res){
-  res.sendfile('index.html');
+  res.sendfile('html/index.html');
 });
 
-app.get('/socket', function(req, res){
-  res.sendfile('socket.html');
+// htmlを返却
+app.get('/html', function(req, res){
+  var f = (req.query.f) ? req.query.f : "index";
+  var file = 'html/' + f + ".html";
+  res.sendfile(file);
 });
 
 // javascriptを返却
 app.get('/js', function(req, res){
-  var file = req.query.f + ".js";
-  res.sendfile(file);
+  if(req.query.f) {
+    var file = 'js/' + req.query.f + ".js";
+    res.sendfile(file);
+  }
 });
 
 // socket event
