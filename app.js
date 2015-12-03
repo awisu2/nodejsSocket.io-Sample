@@ -27,9 +27,13 @@ html.get('/:f', function(req, res){
 
 // call/xxxでアクセスすると、socketに対してメッセージを送る 
 html.get('/call/:method', function(req, res){
-  var appid = req.query.appid;
+  if(!checkAppId(req.query.appid)) {
+    res.send("ng");
+    return;
+  }
+
   var msg = req.query.msg;
-  if(!appid || !msg) {
+  if(!msg) {
     res.send("ng");
     return;
   }
@@ -96,3 +100,15 @@ io.on('connection', function(socket){
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
+
+// appidの存在チェック
+function checkAppId(appid) {
+  if(APPID_CHECK) {
+    if(!appid) return false;
+    if(APPIDS.indexOf(appid) < 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
