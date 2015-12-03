@@ -1,3 +1,4 @@
+require("./js/common.js");
 require("./js/config.js");
 
 var express = require('express');
@@ -24,11 +25,41 @@ html.get('/:f', function(req, res){
   res.sendfile(file);
 });
 
+// call/xxxでアクセスすると、socketに対してメッセージを送る 
+html.get('/call/:method', function(req, res){
+  var appid = req.query.appid;
+  var msg = req.query.msg;
+  if(!appid || !msg) {
+    res.send("ng");
+    return;
+  }
+
+  // 個別のメソッド
+  switch (req.params.method){
+    case "send":
+      io.emit(SOCKETEVENT.TOCLIENT, msg);
+      break;
+    case "sendAll":
+      io.emit(SOCKETEVENT.TOCLIENT, msg);
+      break;
+    case "sendRoom":
+      var roomid = req.query.roomid;
+      if(!roomid) {
+        res.send("ng");
+      }
+      io.to(roomid).emit(SOCKETEVENT.TOCLIENT, msg);
+      break;
+  }
+  var file = 'html/' + req.params.f + ".html";
+  res.send("ok");
+});
+
 // ルータをセット
 app.use(html);
 app.use("/js", js);
 
 // socket event
+rooms = {};
 io.on('connection', function(socket){
   var id = socket.id;
   var idstr = "[" + id + "] ";
@@ -38,15 +69,27 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(){
     console.log(idstr + 'disconnect');
   });
+
+  // カスタムイベントの登録
   socket.on(SOCKETEVENT.MESSAGE, function(msg){
-    console.log(idstr + 'message : ' + msg);
-    // 返却
+    console.log("[" + this.id + "] " + 'message : ' + msg);
     this.emit(SOCKETEVENT.TOCLIENT, msg);
   });
   socket.on(SOCKETEVENT.MESSAGEALL, function(msg){
-    console.log(idstr + 'messageall : ' + msg);
-    // 返却
+    console.log("[" + this.id + "] " + 'messageall : ' + msg);
     io.emit(SOCKETEVENT.TOCLIENT, msg);
+  });
+  socket.on(SOCKETEVENT.JOINROOM, function(roomid){
+    console.log("[" + this.id + "] " + 'joinroom : ' + roomid);
+    this.join(roomid);
+    this.emit(SOCKETEVENT.TOCLIENT, "joined roomm : " + roomid);
+  });
+  socket.on(SOCKETEVENT.MESSAGEROOM, function(msg){
+    console.log("[" + this.id + "] " + 'messageroom : ' + msg);
+    var msgs = msg.split(",");
+    if(msgs.length != 2) return;
+
+    io.to(msgs[0]).emit(SOCKETEVENT.TOCLIENT, msgs[1]);
   });
 });
 

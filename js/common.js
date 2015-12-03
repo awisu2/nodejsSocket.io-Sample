@@ -9,4 +9,17 @@ function getRandomString(len) {
   return r;
 }
 
+SOCKETEVENT = {
+  MESSAGE     : "message",
+  MESSAGEALL  : "messageall",
+  MESSAGEROOM : "messageroom",
+  TOCLIENT    : "message_toclient",
+  JOINROOM    : "joinroom",
+}
 
+SOCKETSTATUS = {
+  NONE       : 0,
+  CONNECT    : 1,
+  DISCONNECT : 2,
+  RECONNECT  : 3,
+};

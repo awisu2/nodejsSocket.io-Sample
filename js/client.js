@@ -25,6 +25,24 @@ $(function(){
       alert("please connect and set message");
     }
   });
+
+  // 接続している全ユーザにメッセージ送信
+  $('#joinroom').click(function(){
+    if(canSendJoin()) {
+      sendMessageJoin(getRoomId());
+    } else {
+      alert("please connect and set roomid");
+    }
+  });
+
+  // 接続している全ユーザにメッセージ送信
+  $('#sendroom').click(function(){
+    if(canSendJoin() && canSendMessage()) {
+      sendMessageRoom(getRoomId() + "," + getMessage());
+    } else {
+      alert("please connect and set roomid");
+    }
+  });
 });
 
 // 接続状況の更新
@@ -65,11 +83,27 @@ function getMessage() {
   return $("#msg").val();
 }
 
+// メッセージを取得
+function getRoomId() {
+  return $("#roomid").val();
+}
+
 // メッセージを送れるか確認
 function canSendMessage()
 {
   if(socket_status == SOCKETSTATUS.CONNECT){
     if(getMessage()){
+      return true;
+    }
+  }
+  return false;
+}
+
+// 部屋へのjoinメッセージを送れるか確認
+function canSendJoin()
+{
+  if(socket_status == SOCKETSTATUS.CONNECT){
+    if(getRoomId()){
       return true;
     }
   }
@@ -82,6 +116,12 @@ function sendMessage(msg){
 }
 function sendMessageAll(msg){
   socket.emit(SOCKETEVENT.MESSAGEALL, msg);
+}
+function sendMessageJoin(roomid){
+  socket.emit(SOCKETEVENT.JOINROOM, roomid);
+}
+function sendMessageRoom(msg){
+  socket.emit(SOCKETEVENT.MESSAGEROOM, msg);
 }
 
 // ソケット初期化
